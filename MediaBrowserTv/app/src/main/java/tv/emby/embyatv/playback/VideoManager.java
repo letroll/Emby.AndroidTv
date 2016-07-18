@@ -60,6 +60,8 @@ public class VideoManager implements IVLCVout.Callback {
     private int mVideoVisibleWidth;
     private int mSarNum;
     private int mSarDen;
+    private int mCurrentBuffer;
+    private boolean mIsInterlaced;
 
     private long mForcedTime = -1;
     private long mLastTime = -1;
@@ -70,7 +72,7 @@ public class VideoManager implements IVLCVout.Callback {
     public boolean isContracted = false;
     private boolean hasSubtitlesSurface = false;
 
-    public VideoManager(PlaybackOverlayActivity activity, View view, int buffer) {
+    public VideoManager(PlaybackOverlayActivity activity, View view) {
         mActivity = activity;
         mSurfaceView = (SurfaceView) view.findViewById(R.id.player_surface);
         mSurfaceHolder = mSurfaceView.getHolder();
@@ -86,8 +88,10 @@ public class VideoManager implements IVLCVout.Callback {
         }
         mVideoView = (EMVideoView) view.findViewById(R.id.videoView);
 
-        createPlayer(buffer);
+    }
 
+    public void init(int buffer, boolean isInterlaced) {
+        createPlayer(buffer, isInterlaced);
     }
 
     public void setNativeMode(boolean value) {
@@ -193,11 +197,6 @@ public class VideoManager implements IVLCVout.Callback {
         } else {
             mVlcPlayer.play();
             mSurfaceView.setKeepScreenOn(true);
-            // work around losing audio when pausing bug
-            int sav = mVlcPlayer.getAudioTrack();
-            mVlcPlayer.setAudioTrack(-1);
-            mVlcPlayer.setAudioTrack(sav);
-            //
         }
     }
 
@@ -331,8 +330,47 @@ public class VideoManager implements IVLCVout.Callback {
         return nativeMode ? -1 : mVlcPlayer.getAudioTrack();
     }
 
-    public void setAudioTrack(int id) {
-        if (!nativeMode) mVlcPlayer.setAudioTrack(id);
+    public void setAudioTrack(int ndx, List<MediaStream> allStreams) {
+        if (!nativeMode) {
+            //find the relative order of our audio index within the audio tracks in VLC
+            int vlcIndex = 1; // start at 1 to account for "disabled"
+            for (MediaStream stream : allStreams) {
+                if (stream.getType() == MediaStreamType.Audio && !stream.getIsExternal()) {
+                    if (stream.getIndex() == ndx) {
+                        break;
+                    }
+                    vlcIndex++;
+                }
+            }
+
+            org.videolan.libvlc.MediaPlayer.TrackDescription vlcTrack;
+            try {
+                vlcTrack = mVlcPlayer.getAudioTracks()[vlcIndex];
+
+            } catch (IndexOutOfBoundsException e) {
+                TvApp.getApplication().getLogger().Error("Could not locate audio with index %s in vlc track info", ndx);
+                mVlcPlayer.setAudioTrack(ndx);
+                return;
+            } catch (NullPointerException e){
+                TvApp.getApplication().getLogger().Error("No subtitle tracks found in player trying to set subtitle with index %s in vlc track info", ndx);
+                mVlcPlayer.setAudioTrack(vlcIndex);
+                return;
+            }
+            //debug
+            TvApp.getApplication().getLogger().Debug("Setting VLC audio track index to: "+vlcIndex + "/" + vlcTrack.id);
+            for (org.videolan.libvlc.MediaPlayer.TrackDescription track : mVlcPlayer.getAudioTracks()) {
+                TvApp.getApplication().getLogger().Debug("VLC Audio Track: "+track.name+"/"+track.id);
+            }
+            //
+            if (mVlcPlayer.setAudioTrack(vlcTrack.id)) {
+                TvApp.getApplication().getLogger().Info("Setting by ID was successful");
+            } else {
+                TvApp.getApplication().getLogger().Info("Setting by ID not succesful, trying index");
+                mVlcPlayer.setAudioTrack(vlcIndex);
+            }
+        } else {
+            TvApp.getApplication().getLogger().Error("Cannot set audio track in native mode");
+        }
     }
 
     public void setAudioDelay(long value) {
@@ -381,7 +419,9 @@ public class VideoManager implements IVLCVout.Callback {
         releasePlayer();
     }
 
-    private void createPlayer(int buffer) {
+    private void createPlayer(int buffer, boolean isInterlaced) {
+        if (mVlcPlayer != null && mIsInterlaced == isInterlaced && mCurrentBuffer == buffer) return; // don't need to re-create
+
         try {
 
             // Create a new media player
@@ -399,6 +439,10 @@ public class VideoManager implements IVLCVout.Callback {
             options.add("--audio-resampler");
             options.add("soxr");
             options.add("--stats");
+            if (isInterlaced) {
+                options.add("--video-filter=deinterlace");
+                options.add("--deinterlace-mode=Bob");
+            }
 //            options.add("--subsdec-encoding");
 //            options.add("Universal (UTF-8)");
             options.add("-v");
@@ -679,4 +723,17 @@ public class VideoManager implements IVLCVout.Callback {
 
     }
 
+    @Override
+    public void onHardwareAccelerationError(IVLCVout ivlcVout) {
+        TvApp.getApplication().getLogger().Error("VLC Hardware acceleration error");
+    }
+
+    public Integer translateVlcAudioId(Integer vlcId) {
+        Integer ourIndex = 0;
+        for (org.videolan.libvlc.MediaPlayer.TrackDescription track : mVlcPlayer.getAudioTracks()) {
+            if (track.id == vlcId) return ourIndex - 1; // Vlc has 'disabled' as first
+            ourIndex++;
+        }
+        return ourIndex;
+    }
 }

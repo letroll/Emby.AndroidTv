@@ -45,12 +45,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
         // conditionally hide options that don't apply
         PreferenceCategory cat = (PreferenceCategory) findPreference("pref_playback_category");
-        if (Utils.isFireTvStick()) cat.removePreference(findPreference("pref_vlc_max_res"));
         if (Utils.isFireTv() && !Utils.is50()) cat.removePreference(findPreference("pref_audio_option"));
         if (Utils.is60()) {
-            cat.removePreference(findPreference("pref_enable_vlc"));
-            cat.removePreference(findPreference("pref_vlc_max_res"));
             cat.removePreference(findPreference("pref_bitstream_ac3"));
+        } else {
+            cat.removePreference(findPreference("pref_refresh_switching"));
         }
         if (!TvApp.getApplication().isRegistered()) {
             //Indicate that cinema mode requires premiere
@@ -131,10 +130,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
         if (preference instanceof CheckBoxPreference) {
             CheckBoxPreference cb = (CheckBoxPreference) preference;
-            if (cb.getKey().equals("pref_enable_vlc")) {
-                // enable other vlc only options
-                Preference res = findPreference("pref_vlc_max_res");
-                if (res != null) res.setEnabled(cb.isChecked());
+            if (cb.getKey().equals("pref_live_direct")) {
+                // enable other live tv direct only options
+                Preference live = findPreference("pref_enable_vlc_livetv");
+                if (live != null) live.setEnabled(cb.isChecked());
             }
         }
     }

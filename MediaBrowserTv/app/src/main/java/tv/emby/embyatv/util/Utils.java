@@ -2,6 +2,7 @@ package tv.emby.embyatv.util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -495,6 +496,7 @@ public class Utils {
     public static void getItemsToPlay(final BaseItemDto mainItem, boolean allowIntros, final boolean shuffle, final Response<List<BaseItemDto>> outerResponse) {
         final List<BaseItemDto> items = new ArrayList<>();
         ItemQuery query = new ItemQuery();
+        TvApp.getApplication().setPlayingIntros(false);
 
         switch (mainItem.getType()) {
             case "Episode":
@@ -549,7 +551,7 @@ public class Utils {
                 query.setSortBy(new String[]{shuffle ? ItemSortBy.Random : ItemSortBy.SortName});
                 query.setRecursive(true);
                 query.setLimit(50); // guard against too many items
-                query.setFields(new ItemFields[] {ItemFields.MediaSources, ItemFields.MediaStreams, ItemFields.Chapters, ItemFields.Path, ItemFields.PrimaryImageAspectRatio});
+                query.setFields(new ItemFields[] {ItemFields.MediaSources, ItemFields.MediaStreams, ItemFields.Chapters, ItemFields.Path, ItemFields.Overview, ItemFields.PrimaryImageAspectRatio});
                 query.setUserId(TvApp.getApplication().getCurrentUser().getId());
                 TvApp.getApplication().getApiClient().GetItemsAsync(query, new Response<ItemsResult>() {
                     @Override
@@ -570,6 +572,7 @@ public class Utils {
                 query.setLimit(150); // guard against too many items
                 query.setFields(new ItemFields[] {ItemFields.PrimaryImageAspectRatio, ItemFields.Genres});
                 query.setUserId(TvApp.getApplication().getCurrentUser().getId());
+                query.setParentId(mainItem.getId());
                 TvApp.getApplication().getApiClient().GetItemsAsync(query, new Response<ItemsResult>() {
                     @Override
                     public void onResponse(ItemsResult response) {
@@ -651,6 +654,9 @@ public class Utils {
                             if (response.getTotalRecordCount() > 0){
                                 Collections.addAll(items, response.getItems());
                                 TvApp.getApplication().getLogger().Info(response.getTotalRecordCount() + " intro items added for playback.");
+                                TvApp.getApplication().setPlayingIntros(true);
+                            } else {
+                                TvApp.getApplication().setPlayingIntros(false);
                             }
                             //Finally, the main item including subsequent parts
                             addMainItem(mainItem, items, outerResponse);
@@ -1160,7 +1166,7 @@ public class Utils {
     }
 
     public static void ReportProgress(BaseItemDto item, StreamInfo currentStreamInfo, long position, boolean isPaused) {
-        if (item != null) {
+        if (item != null && currentStreamInfo != null) {
             PlaybackProgressInfo info = new PlaybackProgressInfo();
             ApiClient apiClient = TvApp.getApplication().getApiClient();
             info.setItemId(item.getId());
@@ -1169,6 +1175,10 @@ public class Utils {
             info.setCanSeek(currentStreamInfo.getRunTimeTicks() != null && currentStreamInfo.getRunTimeTicks() > 0);
             info.setIsMuted(TvApp.getApplication().isAudioMuted());
             info.setPlayMethod(currentStreamInfo.getPlayMethod());
+            if (TvApp.getApplication().getPlaybackController() != null && TvApp.getApplication().getPlaybackController().isPlaying()) {
+                info.setAudioStreamIndex(TvApp.getApplication().getPlaybackController().getAudioStreamIndex());
+                info.setSubtitleStreamIndex(TvApp.getApplication().getPlaybackController().getSubtitleStreamIndex());
+            }
             TvApp.getApplication().getPlaybackManager().reportPlaybackProgress(info, currentStreamInfo, false, apiClient, new EmptyResponse());
         }
 
@@ -1437,16 +1447,6 @@ public class Utils {
         return value == null || value.equals("");
     }
 
-    //todo replace with custom error reporter
-//    public static void PutCustomAcraData() {
-//        TvApp app = TvApp.getApplication();
-//        ApiClient apiClient = app.getApiClient();
-//        if (apiClient != null) {
-//            if (app.getCurrentUser() != null) ACRA.getErrorReporter().putCustomData("mbUser", app.getCurrentUser().getName());
-//            ACRA.getErrorReporter().putCustomData("serverInfo", app.getSerializer().SerializeToString(app.getCurrentSystemInfo()));
-//        }
-//    }
-
     public static boolean versionGreaterThanOrEqual(String firstVersion, String secondVersion) {
         try {
             String[] firstVersionComponents = firstVersion.split("[.]");
@@ -1509,6 +1509,8 @@ public class Utils {
         return Build.MODEL.startsWith("AFT");
     }
     public static boolean isFireTvStick() { return Build.MODEL.equals("AFTM"); }
+
+    public static boolean is1stGenFireTv() { return Build.MODEL.equals("AFTB"); }
 
     public static boolean isShield() { return Build.MODEL.equals("SHIELD Android TV"); }
 
@@ -1614,27 +1616,43 @@ public class Utils {
                 Utils.signInToServer(connectionManager, response.getServers().get(0), activity);
                 break;
             case SignedIn:
-                logger.Debug("Ignoring saved connection manager sign in");
-                connectionManager.GetAvailableServers(new Response<ArrayList<ServerInfo>>(){
-                    @Override
-                    public void onResponse(ArrayList<ServerInfo> serverResponse) {
-                        if (serverResponse.size() == 1) {
-                            //Signed in before and have just one server so go directly to user screen
-                            Utils.signInToServer(connectionManager, serverResponse.get(0), activity);
-                        } else {
-                            //More than one server so show selection
-                            Intent serverIntent = new Intent(activity, SelectServerActivity.class);
-                            GsonJsonSerializer serializer = TvApp.getApplication().getSerializer();
-                            List<String> payload = new ArrayList<>();
-                            for (ServerInfo server : serverResponse) {
-                                payload.add(serializer.SerializeToString(server));
-                            }
-                            serverIntent.putExtra("Servers", payload.toArray(new String[payload.size()]));
-                            serverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                            activity.startActivity(serverIntent);
+                ServerInfo serverInfo = response.getServers() != null && response.getServers().size() > 0 && response.getServers().get(0).getUserLinkType() != null ? response.getServers().get(0) : null;
+                if (serverInfo != null) {
+                    // go straight in for connect only
+                    response.getApiClient().GetUserAsync(serverInfo.getUserId(), new Response<UserDto>() {
+                        @Override
+                        public void onResponse(UserDto response) {
+                            TvApp.getApplication().setCurrentUser(response);
+                            TvApp.getApplication().setConnectLogin(true);
+                            Intent homeIntent = new Intent(activity, MainActivity.class);
+                            activity.startActivity(homeIntent);
                         }
-                    }
-                });
+                    });
+
+                } else {
+                    logger.Debug("Ignoring saved connection manager sign in");
+                    connectionManager.GetAvailableServers(new Response<ArrayList<ServerInfo>>(){
+                        @Override
+                        public void onResponse(ArrayList<ServerInfo> serverResponse) {
+                            if (serverResponse.size() == 1) {
+                                //Signed in before and have just one server so go directly to user screen
+                                Utils.signInToServer(connectionManager, serverResponse.get(0), activity);
+                            } else {
+                                //More than one server so show selection
+                                Intent serverIntent = new Intent(activity, SelectServerActivity.class);
+                                GsonJsonSerializer serializer = TvApp.getApplication().getSerializer();
+                                List<String> payload = new ArrayList<>();
+                                for (ServerInfo server : serverResponse) {
+                                    payload.add(serializer.SerializeToString(server));
+                                }
+                                serverIntent.putExtra("Servers", payload.toArray(new String[payload.size()]));
+                                serverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                activity.startActivity(serverIntent);
+                            }
+                        }
+                    });
+
+                }
                 break;
             case ServerSelection:
                 logger.Debug("Select A server");
@@ -1665,6 +1683,21 @@ public class Utils {
         }
 
         return (isFireTv() && !is50()) || "1".equals(TvApp.getApplication().getPrefs().getString("pref_audio_option","0"));
+    }
+
+    /**
+     * Returns darker version of specified <code>color</code>.
+     */
+    public static int darker (int color, float factor) {
+        int a = Color.alpha( color );
+        int r = Color.red( color );
+        int g = Color.green( color );
+        int b = Color.blue( color );
+
+        return Color.argb( a,
+                Math.max( (int)(r * factor), 0 ),
+                Math.max( (int)(g * factor), 0 ),
+                Math.max( (int)(b * factor), 0 ) );
     }
 
 }

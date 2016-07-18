@@ -99,6 +99,7 @@ public class TvApp extends Application implements ActivityCompat.OnRequestPermis
     private boolean searchAllowed = Build.VERSION.SDK_INT < 23;
 
     private boolean audioMuted;
+    private boolean playingIntros;
 
     private BaseActivity currentActivity;
 
@@ -178,7 +179,7 @@ public class TvApp extends Application implements ActivityCompat.OnRequestPermis
     }
 
     public ApiClient getApiClient() {
-        return connectionManager.GetApiClient(currentUser);
+        return currentUser != null ? connectionManager.GetApiClient(currentUser) : null;
     }
 
     public BaseItemDto getCurrentPlayingItem() {
@@ -207,7 +208,13 @@ public class TvApp extends Application implements ActivityCompat.OnRequestPermis
 
     public void setAudioMuted(boolean value) {
         audioMuted = value;
-        audioManager.setStreamMute(AudioManager.STREAM_MUSIC, audioMuted);
+        getLogger().Info("Setting mute state to: "+audioMuted);
+        if (Utils.is60()) {
+            audioManager.adjustVolume(audioMuted ? AudioManager.ADJUST_MUTE : AudioManager.ADJUST_UNMUTE, 0);
+
+        } else {
+            audioManager.setStreamMute(AudioManager.STREAM_MUSIC, audioMuted);
+        }
     }
 
     public boolean isAudioMuted() { return audioMuted; }
@@ -382,6 +389,8 @@ public class TvApp extends Application implements ActivityCompat.OnRequestPermis
     public boolean directStreamLiveTv() { return getPrefs().getBoolean("pref_live_direct", true); }
 
     public void setDirectStreamLiveTv(boolean value) { getPrefs().edit().putBoolean("pref_live_direct", value).commit(); }
+
+    public boolean useVlcForLiveTv() { return getPrefs().getBoolean("pref_enable_vlc_livetv", true); }
 
     public Calendar getLastTvPlayback() {
         return lastTvPlayback.after(lastPlayback) ? lastTvPlayback : lastPlayback;
@@ -647,5 +656,13 @@ public class TvApp extends Application implements ActivityCompat.OnRequestPermis
 
     public void setLastVideoQueueChange(long lastVideoQueueChange) {
         this.lastVideoQueueChange = lastVideoQueueChange;
+    }
+
+    public boolean isPlayingIntros() {
+        return playingIntros;
+    }
+
+    public void setPlayingIntros(boolean playingIntros) {
+        this.playingIntros = playingIntros;
     }
 }

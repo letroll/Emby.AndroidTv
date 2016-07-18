@@ -38,10 +38,19 @@
             app:numColumns="5"
             app:itemLayout="@layout/dash_grid_item_color"
             />
+        <CheckBoxPreference android:key="pref_show_backdrop"
+            android:title="@string/lbl_show_backdrop"
+            android:defaultValue="true"
+            />
         <CheckBoxPreference android:key="pref_enable_info_panel"
             android:title="@string/lbl_show_info_panel"
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:summary="@string/desc_info_panel"
+            />
+        <CheckBoxPreference android:key="pref_enable_premieres"
+            android:title="@string/lbl_show_premieres"
+            android:defaultValue="false"
+            android:summary="@string/desc_premieres"
             />
         <CheckBoxPreference android:key="pref_enable_themes"
             android:title="@string/lbl_enable_seasonal_themes"
@@ -74,20 +83,18 @@
             android:defaultValue="true"
             android:summary="@string/sum_enable_cinema_mode"
             />
-        <CheckBoxPreference android:key="pref_enable_vlc"
-            android:title="@string/lbl_use_vlc"
+        <CheckBoxPreference android:key="pref_refresh_switching"
+            android:title="@string/lbl_refresh_switching"
             android:defaultValue="true"
-            android:summary="@string/desc_use_vlc"
             />
         <CheckBoxPreference android:key="pref_live_direct"
             android:title="@string/lbl_direct_stream_live"
             android:defaultValue="true"
             />
-        <ListPreference android:key="pref_vlc_max_res"
-            android:title="@string/lbl_vlc_max_res"
-            android:defaultValue="2900"
-            android:entries="@array/pref_vlc_max_entries"
-            android:entryValues="@array/pref_vlc_max_values"
+        <CheckBoxPreference android:key="pref_enable_vlc_livetv"
+            android:title="@string/lbl_use_vlc_livetv"
+            android:defaultValue="true"
+            android:summary="@string/desc_use_vlc_livetv"
             />
         <ListPreference android:key="pref_audio_option"
             android:title="@string/lbl_audio_output"
@@ -99,6 +106,11 @@
             android:title="@string/lbl_bitstream_ac3"
             android:summary="@string/desc_bitstream_ac3"
             android:defaultValue="true"
+            />
+        <CheckBoxPreference android:key="pref_bitstream_dts"
+            android:title="@string/lbl_bitstream_dts"
+            android:summary="@string/desc_bitstream_ac3"
+            android:defaultValue="false"
             />
 
     </PreferenceCategory>

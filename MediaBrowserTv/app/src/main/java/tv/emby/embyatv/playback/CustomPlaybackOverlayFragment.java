@@ -1,5 +1,6 @@
 package tv.emby.embyatv.playback;
 
+import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
@@ -22,6 +23,7 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -42,19 +44,16 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.squareup.okhttp.internal.Util;
 import com.squareup.picasso.Picasso;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import mediabrowser.apiinteraction.EmptyResponse;
 import mediabrowser.apiinteraction.Response;
-import mediabrowser.apiinteraction.android.GsonJsonSerializer;
 import mediabrowser.model.dlna.StreamInfo;
 import mediabrowser.model.dlna.SubtitleStreamInfo;
 import mediabrowser.model.dto.BaseItemDto;
@@ -186,7 +185,7 @@ public class CustomPlaybackOverlayFragment extends Fragment implements IPlayback
     int mButtonSize;
 
     boolean mFadeEnabled = false;
-    boolean mIsVisible = true;
+    boolean mIsVisible = false;
     boolean mPopupPanelVisible = false;
     boolean mNextUpPanelVisible = false;
     boolean mSmNextUpPanelVisible = false;
@@ -595,6 +594,12 @@ public class CustomPlaybackOverlayFragment extends Fragment implements IPlayback
     private View.OnKeyListener keyListener = new View.OnKeyListener() {
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+            if (keyCode == KeyEvent.KEYCODE_MEDIA_STOP && mActivity != null && !mActivity.isFinishing()) {
+                mActivity.finish();
+                return true;
+            }
+
             if (mPopupPanelVisible && (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_BUTTON_B || keyCode == KeyEvent.KEYCODE_ESCAPE)) {
                 //back should just hide the popup panel
                 hidePopupPanel();
@@ -720,7 +725,15 @@ public class CustomPlaybackOverlayFragment extends Fragment implements IPlayback
         mAudioManager.registerMediaButtonEventReceiver(new ComponentName(TvApp.getApplication().getPackageName(), RemoteControlReceiver.class.getName()));
         //TODO implement conditional logic for api 21+
 
-        if (!mIsVisible) show(); // in case we were paused during video playback
+        if (TvApp.getApplication().isPlayingIntros()) {
+            // don't show overlay
+            TvApp.getApplication().setPlayingIntros(false);
+        } else {
+            if (!mIsVisible) {
+                show(); // in case we were paused during video playback
+                setFadingEnabled(true);
+            }
+        }
 
     }
 
@@ -1292,7 +1305,9 @@ public class CustomPlaybackOverlayFragment extends Fragment implements IPlayback
                     showGuide();
                 }
             }));
-        } else if (!TextUtils.isEmpty(item.getOverview())) {
+        }
+
+        if (!TextUtils.isEmpty(item.getOverview())) {
             mButtonRow.addView(new ImageButton(mActivity, R.drawable.infoicon, mButtonSize, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -1318,10 +1333,14 @@ public class CustomPlaybackOverlayFragment extends Fragment implements IPlayback
 
                     List<MediaStream> audioTracks = TvApp.getApplication().getPlaybackManager().getInPlaybackSelectableAudioStreams(mPlaybackController.getCurrentStreamInfo());
                     Integer currentAudioIndex = mPlaybackController.getAudioStreamIndex();
+                    if (!mPlaybackController.isNativeMode() && currentAudioIndex > audioTracks.size()) {
+                        //VLC has translated this to an ID - we need to translate back to our index positionally
+                        currentAudioIndex = mPlaybackController.translateVlcAudioId(currentAudioIndex);
+                    }
 
                     PopupMenu audioMenu = Utils.createPopupMenu(getActivity(), v, Gravity.RIGHT);
                     for (MediaStream audio : audioTracks) {
-                        MenuItem item = audioMenu.getMenu().add(0, audio.getIndex(), audio.getIndex(), Utils.SafeToUpper(audio.getLanguage()) + " " + Utils.SafeToUpper(audio.getCodec()) + " (" + audio.getChannelLayout() + ")");
+                        MenuItem item = audioMenu.getMenu().add(0, audio.getIndex(), audio.getIndex(), audio.getDisplayTitle());
                         if (currentAudioIndex != null && currentAudioIndex == audio.getIndex()) item.setChecked(true);
                     }
                     audioMenu.getMenu().setGroupCheckable(0, true, false);
@@ -1364,7 +1383,7 @@ public class CustomPlaybackOverlayFragment extends Fragment implements IPlayback
                     int currentSubIndex = mPlaybackController.getSubtitleStreamIndex();
                     if (currentSubIndex < 0) none.setChecked(true);
                     for (SubtitleStreamInfo sub : subtitles) {
-                        MenuItem item = subMenu.getMenu().add(0, sub.getIndex(), sub.getIndex(), Utils.FirstToUpper(sub.getName() != null ? sub.getName() : sub.getLanguage()) + (sub.getIsForced() ? mApplication.getString(R.string.lbl_parens_forced) : ""));
+                        MenuItem item = subMenu.getMenu().add(0, sub.getIndex(), sub.getIndex(), sub.getDisplayTitle());
                         if (currentSubIndex == sub.getIndex()) item.setChecked(true);
                     }
                     subMenu.getMenu().setGroupCheckable(0, true, false);
@@ -1548,17 +1567,19 @@ public class CustomPlaybackOverlayFragment extends Fragment implements IPlayback
             addButtons(current);
             InfoLayoutHelper.addInfoRow(mActivity, current, mInfoRow, true, false, mPlaybackController.getCurrentMediaSource().GetDefaultAudioStream(mPlaybackController.getAudioStreamIndex()));
 
-            StreamInfo stream = mPlaybackController.getCurrentStreamInfo();
-            if (stream != null) {
-                switch (stream.getPlayMethod()) {
+            if (mApplication.getPrefs().getBoolean("pref_enable_debug", false)) {
+                StreamInfo stream = mPlaybackController.getCurrentStreamInfo();
+                if (stream != null) {
+                    switch (stream.getPlayMethod()) {
 
-                    case Transcode:
-                        InfoLayoutHelper.addBlockText(mActivity, mInfoRow, "Trans" + (mPlaybackController.mVideoManager.isNativeMode() ? "/I" : "/V"));
-                        break;
-                    case DirectStream:
-                    case DirectPlay:
-                        InfoLayoutHelper.addBlockText(mActivity, mInfoRow, "Direct" + (mPlaybackController.mVideoManager.isNativeMode() ? "/I" : "/V"));
-                        break;
+                        case Transcode:
+                            InfoLayoutHelper.addBlockText(mActivity, mInfoRow, "Trans" + (mPlaybackController.mVideoManager.isNativeMode() ? "/I" : "/V"));
+                            break;
+                        case DirectStream:
+                        case DirectPlay:
+                            InfoLayoutHelper.addBlockText(mActivity, mInfoRow, "Direct" + (mPlaybackController.mVideoManager.isNativeMode() ? "/I" : "/V"));
+                            break;
+                    }
                 }
             }
 

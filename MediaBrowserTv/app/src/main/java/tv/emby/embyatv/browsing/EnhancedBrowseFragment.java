@@ -89,6 +89,7 @@ public class EnhancedBrowseFragment extends Fragment implements IRowLoader {
     protected String itemTypeString;
     protected boolean showViews = true;
     protected boolean justLoaded = true;
+    protected boolean ShowFanart = false;
 
     protected BaseRowItem favSongsRowItem;
 
@@ -214,6 +215,8 @@ public class EnhancedBrowseFragment extends Fragment implements IRowLoader {
     public void onResume() {
         super.onResume();
 
+        ShowFanart = mApplication.getPrefs().getBoolean("pref_show_backdrop", true);
+
         //React to deletion
         if (getActivity() != null && !getActivity().isFinishing() && mCurrentRow != null && mCurrentItem != null && mCurrentItem.getItemId() != null && mCurrentItem.getItemId().equals(TvApp.getApplication().getLastDeletedItemId())) {
             ((ItemRowAdapter)mCurrentRow.getAdapter()).remove(mCurrentItem);
@@ -260,6 +263,9 @@ public class EnhancedBrowseFragment extends Fragment implements IRowLoader {
                 case NextUp:
                     rowAdapter = new ItemRowAdapter(def.getNextUpQuery(), true, mCardPresenter, mRowsAdapter);
                     break;
+                case LatestItems:
+                    rowAdapter = new ItemRowAdapter(def.getLatestItemsQuery(), true, mCardPresenter, mRowsAdapter);
+                    break;
                 case Season:
                     rowAdapter = new ItemRowAdapter(def.getSeasonQuery(), mCardPresenter, mRowsAdapter);
                     break;
@@ -285,7 +291,7 @@ public class EnhancedBrowseFragment extends Fragment implements IRowLoader {
                     rowAdapter = new ItemRowAdapter(def.getProgramQuery(), mCardPresenter, mRowsAdapter);
                     break;
                 case LiveTvRecording:
-                    rowAdapter = new ItemRowAdapter(def.getRecordingQuery(), mCardPresenter, mRowsAdapter);
+                    rowAdapter = new ItemRowAdapter(def.getRecordingQuery(), def.getChunkSize(), mCardPresenter, mRowsAdapter);
                     break;
                 case LiveTvRecordingGroup:
                     rowAdapter = new ItemRowAdapter(def.getRecordingGroupQuery(), mCardPresenter, mRowsAdapter);
@@ -343,7 +349,7 @@ public class EnhancedBrowseFragment extends Fragment implements IRowLoader {
         gridRowAdapter.add(new GridButton(GRID, TvApp.getApplication().getString(R.string.lbl_all_items), R.drawable.grid));
         gridRowAdapter.add(new GridButton(BY_LETTER, mApplication.getString(R.string.lbl_by_letter), R.drawable.byletter));
         gridRowAdapter.add(new GridButton(GENRES, mApplication.getString(R.string.lbl_genres), R.drawable.genres));
-        gridRowAdapter.add(new GridButton(PERSONS, mApplication.getString(R.string.lbl_performers), R.drawable.actors));
+        //gridRowAdapter.add(new GridButton(PERSONS, mApplication.getString(R.string.lbl_performers), R.drawable.actors));
         gridRowAdapter.add(new GridButton(SEARCH, mApplication.getString(R.string.lbl_search), R.drawable.search));
 
     }
@@ -537,8 +543,10 @@ public class EnhancedBrowseFragment extends Fragment implements IRowLoader {
             ItemRowAdapter adapter = (ItemRowAdapter) ((ListRow)row).getAdapter();
             adapter.loadMoreItemsIfNeeded(rowItem.getIndex());
 
-            mBackgroundUrl = rowItem.getBackdropImageUrl();
-            startBackgroundTimer();
+            if (ShowFanart) {
+                mBackgroundUrl = rowItem.getBackdropImageUrl();
+                startBackgroundTimer();
+            }
 
         }
     }
