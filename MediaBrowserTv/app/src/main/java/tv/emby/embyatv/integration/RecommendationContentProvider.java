@@ -22,25 +22,25 @@ package tv.emby.embyatv.integration;
  * SOFTWARE.
  */
 
-        import java.io.FileNotFoundException;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.io.OutputStream;
-        import java.net.HttpURLConnection;
-        import java.net.URL;
-        import java.net.URLDecoder;
-
         import android.content.ContentProvider;
-        import android.content.ContentValues;
-        import android.database.Cursor;
-        import android.net.Uri;
-        import android.os.ParcelFileDescriptor;
-        import android.util.Log;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
-        import com.squareup.okhttp.OkHttpClient;
-        import com.squareup.okhttp.OkUrlFactory;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.OkUrlFactory;
 
-        import tv.emby.embyatv.TvApp;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLDecoder;
+
+import tv.emby.embyatv.BuildConfig;
 
 /**
  * Provides a background image for Recommendations for a RecommendationCardView.
@@ -64,7 +64,7 @@ package tv.emby.embyatv.integration;
  */
 public class RecommendationContentProvider extends ContentProvider {
 
-    public static String AUTHORITY = "tv.emby.embyatv.recommendations";
+    public static String AUTHORITY = BuildConfig.AUTHORITY;
     public static String CONTENT_URI = "content://" + AUTHORITY + "/";
 
     @Override

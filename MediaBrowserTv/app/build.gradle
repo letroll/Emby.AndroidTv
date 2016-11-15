@@ -11,6 +11,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 1224
+        buildConfigField 'String', 'AUTHORITY', '"tv.emby.embyatv.recommendations"'
+        resValue "string", "app_name", "Emby"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -23,6 +25,13 @@ android {
         }
     }
     productFlavors {
+        letroll {
+            applicationIdSuffix ".letroll"
+            versionNameSuffix = "letroll"
+            versionName = "1.2.25"
+            buildConfigField 'String', 'AUTHORITY', '"tv.emby.embyatv.letroll.recommendations"'
+            resValue "string", "app_name", "Emby By Letroll"
+        }
         google {
             versionName = "1.2.24g"
         }
@@ -37,6 +46,7 @@ dependencies {
     amazonCompile fileTree(dir: 'amazonLibs', include: ['*.jar'])
     amazonCompile project(':exomedia-amazon')
     googleCompile fileTree(dir: 'googleLibs', include: ['*.jar'])
+    letrollCompile fileTree(dir: 'googleLibs', include: ['*.jar'])
     compile 'com.android.support:recyclerview-v7:23.4.0'
     compile 'com.android.support:leanback-v17:23.4.0'
     compile 'com.android.support:appcompat-v7:23.4.0'
@@ -49,5 +59,6 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.7.0'
     compile 'com.google.guava:guava:18.0'
     googleCompile 'com.devbrackets.android:exomedia:2.5.6'
+    letrollCompile 'com.devbrackets.android:exomedia:2.5.6'
     compile 'com.flaviofaria:kenburnsview:1.0.6'
 }

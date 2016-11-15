@@ -14,7 +14,6 @@ import java.util.List;
 
 import mediabrowser.apiinteraction.ApiClient;
 import mediabrowser.apiinteraction.Response;
-import mediabrowser.apiinteraction.android.profiles.AndroidProfile;
 import mediabrowser.model.dlna.DeviceProfile;
 import mediabrowser.model.dlna.DirectPlayProfile;
 import mediabrowser.model.dlna.PlaybackException;
@@ -24,7 +23,6 @@ import mediabrowser.model.dlna.SubtitleStreamInfo;
 import mediabrowser.model.dlna.VideoOptions;
 import mediabrowser.model.dto.BaseItemDto;
 import mediabrowser.model.dto.MediaSourceInfo;
-import mediabrowser.model.dto.UserItemDataDto;
 import mediabrowser.model.entities.LocationType;
 import mediabrowser.model.entities.MediaStream;
 import mediabrowser.model.entities.MediaStreamType;
@@ -37,7 +35,6 @@ import tv.emby.embyatv.R;
 import tv.emby.embyatv.TvApp;
 import tv.emby.embyatv.livetv.TvManager;
 import tv.emby.embyatv.ui.ImageButton;
-import tv.emby.embyatv.util.MediaCodecCapabilitiesTest;
 import tv.emby.embyatv.util.ProfileHelper;
 import tv.emby.embyatv.util.Utils;
 
@@ -215,16 +212,6 @@ public class PlaybackController {
     }
 
     private void play(long position, int transcodedSubtitle) {
-        if (!TvApp.getApplication().isValid()) {
-            Utils.showToast(TvApp.getApplication(), "Playback not supported. Please unlock or become a supporter.");
-            return;
-        }
-
-        if (TvApp.getApplication().isTrial()) {
-            Utils.showToast(TvApp.getApplication(), TvApp.getApplication().getRegistrationString()+". Unlock or become a supporter for unlimited playback.");
-
-        }
-
         mApplication.getLogger().Debug("Play called with pos: " + position + " and sub index: "+transcodedSubtitle);
         switch (mPlaybackState) {
             case PLAYING:

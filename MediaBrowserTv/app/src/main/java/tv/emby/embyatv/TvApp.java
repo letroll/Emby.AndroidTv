@@ -1,5 +1,6 @@
 package tv.emby.embyatv;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
@@ -12,13 +13,14 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.text.format.DateUtils;
 import android.util.Log;
+
+import java.util.Calendar;
+import java.util.HashMap;
 
 import mediabrowser.apiinteraction.ApiClient;
 import mediabrowser.apiinteraction.EmptyResponse;
@@ -32,7 +34,6 @@ import mediabrowser.model.dto.BaseItemDto;
 import mediabrowser.model.dto.UserDto;
 import mediabrowser.model.entities.DisplayPreferences;
 import mediabrowser.model.logging.ILogger;
-import mediabrowser.model.registration.RegistrationInfo;
 import mediabrowser.model.system.SystemInfo;
 import tv.emby.embyatv.base.BaseActivity;
 import tv.emby.embyatv.playback.MediaManager;
@@ -42,11 +43,6 @@ import tv.emby.embyatv.search.SearchActivity;
 import tv.emby.embyatv.startup.LogonCredentials;
 import tv.emby.embyatv.util.LogReporter;
 import tv.emby.embyatv.util.Utils;
-import tv.emby.embyatv.validation.AppValidator;
-
-import java.util.Calendar;
-import java.util.HashMap;
-import android.Manifest;
 
 /**
  * Created by Eric on 11/24/2014.
@@ -83,9 +79,6 @@ public class TvApp extends Application implements ActivityCompat.OnRequestPermis
     private HashMap<String, DisplayPreferences> displayPrefsCache = new HashMap<>();
 
     private String lastDeletedItemId = "";
-
-    private boolean isPaid = false;
-    private RegistrationInfo registrationInfo;
 
     private Calendar lastPlayback = Calendar.getInstance();
     private Calendar lastMoviePlayback = Calendar.getInstance();
@@ -332,21 +325,6 @@ public class TvApp extends Application implements ActivityCompat.OnRequestPermis
 
     private void setLastNagTime(long time) { getSystemPrefs().edit().putLong("lastNagTime", System.currentTimeMillis()).commit(); }
 
-    public void premiereNag() {
-        if (!isRegistered() && System.currentTimeMillis() - (86400000 * 7) > getLastNagTime()) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (currentActivity != null && !currentActivity.isFinishing()) {
-                        currentActivity.showMessage(getString(R.string.msg_premiere_nag_title), getString(R.string.msg_premiere_nag_msg), 10000);
-                        setLastNagTime(System.currentTimeMillis());
-                    }
-
-                }
-            },2500);
-        }
-    }
-
     public LogonCredentials getConfiguredAutoCredentials() {
         return configuredAutoCredentials;
     }
@@ -423,50 +401,6 @@ public class TvApp extends Application implements ActivityCompat.OnRequestPermis
 
     public void setLastUserInteraction(long lastUserInteraction) {
         this.lastUserInteraction = lastUserInteraction;
-    }
-
-    public boolean checkPaidCache() {
-        isPaid = getSystemPrefs().getString("kv","").equals(getApiClient().getDeviceId());
-        logger.Info("Paid cache check: " + isPaid);
-        return isPaid;
-    }
-
-    public boolean isPaid() {
-        return isPaid;
-    }
-
-    public void setPaid(boolean isPaid) {
-        this.isPaid = isPaid;
-        getSystemPrefs().edit().putString("kv", isPaid ? getApiClient().getDeviceId() : "").commit();
-    }
-
-    public RegistrationInfo getRegistrationInfo() {
-        return registrationInfo;
-    }
-
-    public void setRegistrationInfo(RegistrationInfo registrationInfo) {
-        this.registrationInfo = registrationInfo;
-    }
-
-    public boolean isValid() {
-        return isPaid || (registrationInfo != null && (registrationInfo.getIsRegistered() || registrationInfo.getIsTrial()));
-    }
-
-    public boolean isRegistered() {
-        return registrationInfo != null && registrationInfo.getIsRegistered();
-    }
-
-    public boolean isTrial() {
-        return registrationInfo != null && registrationInfo.getIsTrial() && !isPaid;
-    }
-
-    public void validate() {
-        new AppValidator().validate();
-    }
-
-    public String getRegistrationString() {
-        return isTrial() ? "In Trial. Expires " + DateUtils.getRelativeTimeSpanString(Utils.convertToLocalDate(registrationInfo.getExpirationDate()).getTime()).toString() :
-                isValid() ? "Registered" : "Expired";
     }
 
     public PlaybackManager getPlaybackManager() {

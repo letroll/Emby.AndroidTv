@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingTranslation">
 
-    <string name="app_name">Emby</string>
     <string name="current_queue">Current Queue</string>
     <string name="error">Error</string>
     <string name="ok">OK</string>

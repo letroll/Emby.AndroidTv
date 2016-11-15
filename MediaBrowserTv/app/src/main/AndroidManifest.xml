@@ -72,7 +72,6 @@
         <activity android:name=".livetv.LiveTvGuideActivity" />
         <activity android:name=".browsing.GenericGridActivity" />
         <activity android:name=".browsing.BrowseRecordingsActivity" />
-        <activity android:name=".validation.UnlockActivity" />
         <activity android:name=".details.PhotoPlayerActivity" />
         <activity android:name=".details.ItemListActivity" />
         <activity android:name=".playback.AudioNowPlayingActivity" />
@@ -90,7 +89,7 @@
         </receiver>
 
         <provider
-            android:authorities="tv.emby.embyatv.recommendations"
+            android:authorities="${applicationId}.recommendations"
             android:name=".integration.RecommendationContentProvider"
             android:grantUriPermissions="true"
             android:exported="true"

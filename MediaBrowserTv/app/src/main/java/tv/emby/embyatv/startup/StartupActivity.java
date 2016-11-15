@@ -13,7 +13,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import mediabrowser.apiinteraction.ApiEventListener;
 import mediabrowser.apiinteraction.ConnectionResult;
@@ -26,7 +25,6 @@ import mediabrowser.apiinteraction.android.VolleyHttpClient;
 import mediabrowser.apiinteraction.android.profiles.AndroidProfile;
 import mediabrowser.apiinteraction.playback.PlaybackManager;
 import mediabrowser.model.apiclient.ConnectionState;
-import mediabrowser.model.apiclient.ServerInfo;
 import mediabrowser.model.dto.UserDto;
 import mediabrowser.model.logging.ILogger;
 import mediabrowser.model.serialization.IJsonSerializer;
@@ -193,7 +191,6 @@ public class StartupActivity extends Activity {
                         public void onResponse(final UserDto response) {
                             application.setCurrentUser(response);
                             if (application.getDirectItemId() != null) {
-                                application.validate();
                                 application.determineAutoBitrate();
                                 if (response.getHasPassword()
                                         && (!application.getIsAutoLoginConfigured()
