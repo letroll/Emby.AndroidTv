@@ -351,6 +351,7 @@
     <string name="lbl_show_premieres">Show Season Premieres on Home Screen</string>
     <string name="desc_premieres">Show a row of new episode 1s for the series you watch</string>
     <string name="lbl_bitstream_dts">Bitstream DTS audio</string>
+    <string name="lbl_next_episodes">Next Episodes</string>
 
 
 </resources>

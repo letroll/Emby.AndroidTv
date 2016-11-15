@@ -115,8 +115,8 @@
     <string name="lbl_seasons">Saisons</string>
     <string name="lbl_upcoming">A venir</string>
     <string name="lbl_similar_series">Séries similaires</string>
-    <string name="lbl_toggle_favorite">Afficher les favoris</string>
-    <string name="lbl_toggle_watched">Affichés les éléments lus</string>
+    <string name="lbl_toggle_favorite">Ajouter aux favoris</string>
+    <string name="lbl_toggle_watched">Marquer l\'élément comme lu</string>
     <string name="lbl_sd">SD</string>
     <string name="lbl_if_resumed">"En cas de reprise"</string>
     <string name="lbl_runs">"Durée:"</string>
@@ -149,7 +149,7 @@
     <string name="lbl_please_wait">Veuillez patienter</string>
     <string name="lbl_enter_user_name">Entrez le nom d\'utilisateur</string>
     <string name="lbl_enter_user_pw">Entrez le mot de passe utilisateur</string>
-    <string name="msg_little_longer">Cela prend un peu plus de temps que prévu...</string>
+    <string name="msg_little_longer">Cela prend un peu plus de temps que prévu&#8230;</string>
     <string name="msg_report_sent">Rapport envoyé au développeur. Merci.</string>
     <string name="lbl_report_msg_question">Voulez-vous envoyer un rapport au développeur ?</string>
     <string name="lbl_no">Non</string>
@@ -323,4 +323,5 @@
     <string name="lbl_enable_seasonal_themes">Activer les thèmes de saisons</string>
     <string name="desc_seasonal_themes">Activer la couleurs et les suggestions spéciales à certains moments de l\'année</string>
     <string name="desc_automatic_fav_songs">Playlist automatique des chansons ajoutées en favoris et aimée</string>
+    <string name="lbl_next_episodes">Episodes suivants</string>
 </resources>

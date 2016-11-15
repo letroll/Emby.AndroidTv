@@ -5,7 +5,7 @@ android {
     signingConfigs {
     }
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "24.0.1"
     defaultConfig {
         applicationId "tv.emby.embyatv"
         minSdkVersion 21
