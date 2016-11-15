@@ -1,5 +1,6 @@
 package tv.emby.embyatv.browsing;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,7 +12,6 @@ import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.app.AlertDialog;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -149,8 +149,6 @@ public class HomeFragment extends StdBrowseFragment {
         TvApp.getApplication().getApiClient().GetUserViews(TvApp.getApplication().getCurrentUser().getId(), new Response<ItemsResult>() {
             @Override
             public void onResponse(ItemsResult response) {
-                //First library and in-progress
-                mRows.add(new BrowseRowDef(mApplication.getString(R.string.lbl_library), new ViewQuery()));
 
                 //Special suggestions
                 String[] specialGenres = ThemeManager.getSpecialGenres();
@@ -167,6 +165,7 @@ public class HomeFragment extends StdBrowseFragment {
 
                 }
 
+                //in-progress
                 mRows.add(new BrowseRowDef(mApplication.getString(R.string.lbl_continue_watching), getResumeQuery(), 0, true, true, new ChangeTriggerType[]{ChangeTriggerType.MoviePlayback, ChangeTriggerType.TvPlayback, ChangeTriggerType.VideoQueueChange}, QueryType.ContinueWatching));
 
                 //Now others based on first library type
@@ -202,11 +201,12 @@ public class HomeFragment extends StdBrowseFragment {
                 //        latestMusic.setSortOrder(SortOrder.Descending);
                 //        mRowDef.add(new BrowseRowDef("Latest Albums", latestMusic, 0));
 
+                //library
+                mRows.add(new BrowseRowDef(mApplication.getString(R.string.lbl_library), new ViewQuery()));
+
                 rowLoader.loadRows(mRows);
             }
         });
-
-
 
     }
 

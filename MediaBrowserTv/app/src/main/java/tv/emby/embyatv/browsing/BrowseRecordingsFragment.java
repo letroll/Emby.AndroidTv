@@ -4,7 +4,6 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import mediabrowser.apiinteraction.Response;
@@ -26,12 +25,6 @@ import tv.emby.embyatv.util.Utils;
  * Created by Eric on 9/3/2015.
  */
 public class BrowseRecordingsFragment extends EnhancedBrowseFragment {
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-    }
 
     @Override
     protected void setupQueries(final IRowLoader rowLoader) {

@@ -129,12 +129,6 @@ public class StdBrowseFragment extends BrowseFragment implements IRowLoader {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 

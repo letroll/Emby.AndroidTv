@@ -1,7 +1,5 @@
 package tv.emby.embyatv.browsing;
 
-import android.os.Bundle;
-
 import tv.emby.embyatv.R;
 import tv.emby.embyatv.querying.StdItemQuery;
 
@@ -9,12 +7,6 @@ import tv.emby.embyatv.querying.StdItemQuery;
  * Created by Eric on 12/4/2014.
  */
 public class CollectionFragment extends EnhancedBrowseFragment {
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-    }
 
     @Override
     protected void setupQueries(IRowLoader rowLoader) {

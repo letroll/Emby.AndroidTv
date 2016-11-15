@@ -1,7 +1,5 @@
 package tv.emby.embyatv.browsing;
 
-import android.os.Bundle;
-
 import java.util.Arrays;
 
 import mediabrowser.model.entities.SortOrder;
@@ -17,12 +15,6 @@ import tv.emby.embyatv.querying.StdItemQuery;
  * Created by Eric on 12/4/2014.
  */
 public class GenericFolderFragment extends EnhancedBrowseFragment {
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-    }
 
     private static String[] showSpecialViewTypes = new String[] {"CollectionFolder", "Folder", "UserView", "ChannelFolderItem"};
 
