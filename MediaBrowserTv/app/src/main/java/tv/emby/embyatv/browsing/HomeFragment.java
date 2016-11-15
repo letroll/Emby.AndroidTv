@@ -61,17 +61,11 @@ public class HomeFragment extends StdBrowseFragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         MainTitle = this.getString(R.string.home_title);
 
-        super.onActivityCreated(savedInstanceState);
-
-        //Save last login so we can get back proper context on entry
-        try {
-            Utils.SaveLoginCredentials(new LogonCredentials(TvApp.getApplication().getApiClient().getServerInfo(), TvApp.getApplication().getCurrentUser()), "tv.emby.lastlogin.json");
-        } catch (IOException e) {
-            TvApp.getApplication().getLogger().ErrorException("Unable to save login creds", e);
-        }
+        saveLastLogin();
 
         //Init recommendations
         RecommendationManager.init();
@@ -79,22 +73,7 @@ public class HomeFragment extends StdBrowseFragment {
         //Get auto bitrate
         TvApp.getApplication().determineAutoBitrate();
 
-        //First time audio message
-        if (!mApplication.getSystemPrefs().getBoolean("syspref_audio_warned", false)) {
-            mApplication.getSystemPrefs().edit().putBoolean("syspref_audio_warned",true).apply();
-            new AlertDialog.Builder(mActivity)
-                    .setTitle(mApplication.getString(R.string.lbl_audio_capabilitites))
-                    .setMessage(mApplication.getString(R.string.msg_audio_warning))
-                    .setPositiveButton(mApplication.getString(R.string.btn_got_it), null)
-                    .setNegativeButton(mApplication.getString(R.string.btn_set_compatible_audio), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mApplication.getPrefs().edit().putString("pref_audio_option", "1").apply();
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
-        }
+        showWarningForAudioCapabilities();
 
         ThemeManager.showWelcomeMessage();
 
@@ -118,6 +97,34 @@ public class HomeFragment extends StdBrowseFragment {
             }
         });
 
+    }
+
+    private void showWarningForAudioCapabilities() {
+        //First time audio message
+        if (!mApplication.getSystemPrefs().getBoolean("syspref_audio_warned", false)) {
+            mApplication.getSystemPrefs().edit().putBoolean("syspref_audio_warned",true).apply();
+            new AlertDialog.Builder(mActivity)
+                    .setTitle(mApplication.getString(R.string.lbl_audio_capabilitites))
+                    .setMessage(mApplication.getString(R.string.msg_audio_warning))
+                    .setPositiveButton(mApplication.getString(R.string.btn_got_it), null)
+                    .setNegativeButton(mApplication.getString(R.string.btn_set_compatible_audio), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mApplication.getPrefs().edit().putString("pref_audio_option", "1").apply();
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
+    }
+
+    private void saveLastLogin() {
+        //Save last login so we can get back proper context on entry
+        try {
+            Utils.SaveLoginCredentials(new LogonCredentials(TvApp.getApplication().getApiClient().getServerInfo(), TvApp.getApplication().getCurrentUser()), "tv.emby.lastlogin.json");
+        } catch (IOException e) {
+            TvApp.getApplication().getLogger().ErrorException("Unable to save login creds", e);
+        }
     }
 
     @Override
@@ -360,7 +367,6 @@ public class HomeFragment extends StdBrowseFragment {
             if (toolsRow.indexOf(sendLogsButton) < 0) toolsRow.add(sendLogsButton);
             else if (toolsRow.indexOf(sendLogsButton) > -1) toolsRow.remove(sendLogsButton);
         }
-
     }
 
     @Override
@@ -377,18 +383,7 @@ public class HomeFragment extends StdBrowseFragment {
             if (item instanceof GridButton) {
                 switch (((GridButton) item).getId()) {
                     case LOGOUT:
-                        TvApp app = TvApp.getApplication();
-                        if (app.getIsAutoLoginConfigured()) {
-                            // Present user selection
-                            app.setLoginApiClient(app.getApiClient());
-                            Intent userIntent = new Intent(getActivity(), SelectUserActivity.class);
-                            userIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                            getActivity().startActivity(userIntent);
-
-                        }
-
-                        getActivity().finish(); //don't actually log out because we handle it ourselves
-
+                        onLogoutClick();
                         break;
                     case SETTINGS:
                         Intent settings = new Intent(getActivity(), SettingsActivity.class);
@@ -398,14 +393,7 @@ public class HomeFragment extends StdBrowseFragment {
                         Utils.reportError(getActivity(), "Send Log to Dev");
                         break;
                     case LOGOUT_CONNECT:
-                        TvApp.getApplication().getConnectionManager().Logout(new EmptyResponse() {
-                            @Override
-                            public void onResponse() {
-                                mApplication.setConnectLogin(false);
-                                TvApp.getApplication().getPrefs().edit().putString("pref_login_behavior", "0").apply();
-                                getActivity().finish();
-                            }
-                        });
+                        onLogoutConnectClick();
                         break;
                     default:
                         Toast.makeText(getActivity(), item.toString(), Toast.LENGTH_SHORT)
@@ -413,6 +401,31 @@ public class HomeFragment extends StdBrowseFragment {
                         break;
                 }
             }
+        }
+
+        private void onLogoutConnectClick() {
+            final TvApp app = TvApp.getApplication();
+            app.getConnectionManager().Logout(new EmptyResponse() {
+                @Override
+                public void onResponse() {
+                    mApplication.setConnectLogin(false);
+                    app.getPrefs().edit().putString("pref_login_behavior", "0").apply();
+                    getActivity().finish();
+                }
+            });
+        }
+
+        private void onLogoutClick() {
+            TvApp app = TvApp.getApplication();
+            if (app.getIsAutoLoginConfigured()) {
+                // Present user selection
+                app.setLoginApiClient(app.getApiClient());
+                Intent userIntent = new Intent(getActivity(), SelectUserActivity.class);
+                userIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                getActivity().startActivity(userIntent);
+            }
+
+            getActivity().finish(); //don't actually log out because we handle it ourselves
         }
     }
 
