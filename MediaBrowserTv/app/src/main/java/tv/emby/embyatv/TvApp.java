@@ -19,6 +19,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.facebook.stetho.Stetho;
+
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -102,6 +104,9 @@ public class TvApp extends Application implements ActivityCompat.OnRequestPermis
     public void onCreate() {
         super.onCreate();
         logger = new ConsoleLogger();
+
+        stethoInitialization();
+
         app = (TvApp)getApplicationContext();
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         roboto = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
@@ -131,6 +136,14 @@ public class TvApp extends Application implements ActivityCompat.OnRequestPermis
             }
                       });
 
+    }
+
+    private void stethoInitialization() {
+        Stetho.InitializerBuilder initializerBuilder = Stetho.newInitializerBuilder(this);
+        initializerBuilder.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this));
+        initializerBuilder.enableDumpapp(Stetho.defaultDumperPluginsProvider(this));
+        Stetho.Initializer initializer = initializerBuilder.build();
+        Stetho.initialize(initializer);
     }
 
     public static TvApp getApplication() {
