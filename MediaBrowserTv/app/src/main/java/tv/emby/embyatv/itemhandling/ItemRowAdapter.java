@@ -9,7 +9,6 @@ import android.support.v17.leanback.widget.PresenterSelector;
 
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -54,7 +53,6 @@ import tv.emby.embyatv.querying.QueryType;
 import tv.emby.embyatv.querying.SpecialsQuery;
 import tv.emby.embyatv.querying.StdItemQuery;
 import tv.emby.embyatv.querying.TrailersQuery;
-import tv.emby.embyatv.querying.ViewQuery;
 import tv.emby.embyatv.ui.GridButton;
 import tv.emby.embyatv.ui.HorizontalGridFragment;
 import tv.emby.embyatv.util.Utils;
@@ -333,7 +331,7 @@ public class ItemRowAdapter extends ArrayObjectAdapter {
         add(new BaseRowItem(new GridButton(0,TvApp.getApplication().getString(R.string.lbl_loading_elipses), R.drawable.loading)));
     }
 
-    public ItemRowAdapter(ViewQuery query, Presenter presenter, ArrayObjectAdapter parent) {
+    public ItemRowAdapter(Presenter presenter, ArrayObjectAdapter parent) {
         super(presenter);
         mParent = parent;
         queryType = QueryType.Views;
@@ -744,6 +742,7 @@ public class ItemRowAdapter extends ArrayObjectAdapter {
                     for (BaseItemDto item : response.getItems()) {
                         //re-map the display prefs id to our actual id
                         item.setDisplayPreferencesId(item.getId());
+
                         if (!ignoreTypeList.contains(item.getCollectionType()) && !ignoreTypeList.contains(item.getType()))
                             adapter.add(new BaseRowItem(i++, item, preferParentThumb, staticHeight));
                     }

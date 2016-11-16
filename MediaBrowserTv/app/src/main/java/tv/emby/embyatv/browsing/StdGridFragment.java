@@ -66,7 +66,6 @@ import tv.emby.embyatv.playback.MediaManager;
 import tv.emby.embyatv.presentation.CardPresenter;
 import tv.emby.embyatv.presentation.HorizontalGridPresenter;
 import tv.emby.embyatv.querying.QueryType;
-import tv.emby.embyatv.querying.ViewQuery;
 import tv.emby.embyatv.ui.CharSelectedListener;
 import tv.emby.embyatv.ui.DisplayPrefsPopup;
 import tv.emby.embyatv.ui.HorizontalGridFragment;
@@ -203,7 +202,7 @@ public class StdGridFragment extends HorizontalGridFragment implements IGridLoad
                 mGridAdapter = new ItemRowAdapter(mRowDef.getUpcomingQuery(), mCardPresenter, null);
                 break;
             case Views:
-                mGridAdapter = new ItemRowAdapter(new ViewQuery(), mCardPresenter, null);
+                mGridAdapter = new ItemRowAdapter(mCardPresenter, null);
                 break;
             case SimilarSeries:
                 mGridAdapter = new ItemRowAdapter(mRowDef.getSimilarQuery(), QueryType.SimilarSeries, mCardPresenter, null);

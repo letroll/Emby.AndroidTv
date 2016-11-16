@@ -14,7 +14,6 @@ import mediabrowser.model.querying.SimilarItemsQuery;
 import mediabrowser.model.querying.UpcomingEpisodesQuery;
 import tv.emby.embyatv.model.ChangeTriggerType;
 import tv.emby.embyatv.querying.QueryType;
-import tv.emby.embyatv.querying.ViewQuery;
 
 /**
  * Created by Eric on 12/4/2014.
@@ -168,7 +167,7 @@ public class BrowseRowDef {
         this.queryType = QueryType.Upcoming;
     }
 
-    public BrowseRowDef(String header, ViewQuery query) {
+    public BrowseRowDef(String header) {
         headerText = header;
         this.staticHeight = true;
         this.queryType = QueryType.Views;

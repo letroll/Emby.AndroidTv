@@ -57,7 +57,6 @@ import tv.emby.embyatv.presentation.CardPresenter;
 import tv.emby.embyatv.presentation.GridButtonPresenter;
 import tv.emby.embyatv.presentation.PositionableListRowPresenter;
 import tv.emby.embyatv.querying.QueryType;
-import tv.emby.embyatv.querying.ViewQuery;
 import tv.emby.embyatv.ui.GridButton;
 import tv.emby.embyatv.util.InfoLayoutHelper;
 import tv.emby.embyatv.util.KeyProcessor;
@@ -273,7 +272,7 @@ public class EnhancedBrowseFragment extends Fragment implements IRowLoader {
                     rowAdapter = new ItemRowAdapter(def.getUpcomingQuery(), mCardPresenter, mRowsAdapter);
                     break;
                 case Views:
-                    rowAdapter = new ItemRowAdapter(new ViewQuery(), mCardPresenter, mRowsAdapter);
+                    rowAdapter = new ItemRowAdapter(mCardPresenter, mRowsAdapter);
                     break;
                 case SimilarSeries:
                     rowAdapter = new ItemRowAdapter(def.getSimilarQuery(), QueryType.SimilarSeries, mCardPresenter, mRowsAdapter);

@@ -41,7 +41,6 @@ import tv.emby.embyatv.presentation.GridButtonPresenter;
 import tv.emby.embyatv.presentation.ThemeManager;
 import tv.emby.embyatv.querying.QueryType;
 import tv.emby.embyatv.querying.StdItemQuery;
-import tv.emby.embyatv.querying.ViewQuery;
 import tv.emby.embyatv.settings.SettingsActivity;
 import tv.emby.embyatv.startup.LogonCredentials;
 import tv.emby.embyatv.startup.SelectUserActivity;
@@ -80,6 +79,10 @@ public class HomeFragment extends StdBrowseFragment {
         //Subscribe to Audio messages
         MediaManager.addAudioEventListener(audioEventListener);
 
+        registerMessageListener();
+    }
+
+    private void registerMessageListener() {
         //Setup activity messages
         mActivity.registerMessageListener(new IMessageListener() {
             @Override
@@ -96,7 +99,6 @@ public class HomeFragment extends StdBrowseFragment {
                 }
             }
         });
-
     }
 
     private void showWarningForAudioCapabilities() {
@@ -209,7 +211,7 @@ public class HomeFragment extends StdBrowseFragment {
                 //        mRowDef.add(new BrowseRowDef("Latest Albums", latestMusic, 0));
 
                 //library
-                mRows.add(new BrowseRowDef(mApplication.getString(R.string.lbl_library), new ViewQuery()));
+                mRows.add(new BrowseRowDef(mApplication.getString(R.string.lbl_library)));
 
                 rowLoader.loadRows(mRows);
             }

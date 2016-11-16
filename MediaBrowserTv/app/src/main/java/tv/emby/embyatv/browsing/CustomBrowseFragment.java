@@ -16,6 +16,7 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,6 @@ import tv.emby.embyatv.itemhandling.ItemRowAdapter;
 import tv.emby.embyatv.presentation.CardPresenter;
 import tv.emby.embyatv.presentation.PositionableListRowPresenter;
 import tv.emby.embyatv.querying.QueryType;
-import tv.emby.embyatv.querying.ViewQuery;
 
 /**
  * Created by Eric on 4/15/2015.
@@ -154,7 +154,7 @@ public class CustomBrowseFragment extends Fragment implements IRowLoader {
                     rowAdapter = new ItemRowAdapter(def.getUpcomingQuery(), mCardPresenter, mRowsAdapter);
                     break;
                 case Views:
-                    rowAdapter = new ItemRowAdapter(new ViewQuery(), mCardPresenter, mRowsAdapter);
+                    rowAdapter = new ItemRowAdapter(mCardPresenter, mRowsAdapter);
                     break;
                 case SimilarSeries:
                     rowAdapter = new ItemRowAdapter(def.getSimilarQuery(), QueryType.SimilarSeries, mCardPresenter, mRowsAdapter);

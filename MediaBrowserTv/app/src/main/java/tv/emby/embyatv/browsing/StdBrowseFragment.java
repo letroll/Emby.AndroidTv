@@ -18,6 +18,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -29,6 +31,7 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -68,6 +71,10 @@ import tv.emby.embyatv.ui.ClockUserView;
 import tv.emby.embyatv.ui.ItemPanel;
 import tv.emby.embyatv.util.KeyProcessor;
 import tv.emby.embyatv.util.Utils;
+
+import static android.R.attr.animation;
+import static android.R.style.Animation;
+import static tv.emby.embyatv.querying.QueryType.LiveTvRecordingGroup;
 
 public class StdBrowseFragment extends BrowseFragment implements IRowLoader {
     private static final String TAG = "StdBrowseFragment";
@@ -181,51 +188,8 @@ public class StdBrowseFragment extends BrowseFragment implements IRowLoader {
 
         for (BrowseRowDef def : rows) {
             HeaderItem header = new HeaderItem(def.getHeaderText());
-            ItemRowAdapter rowAdapter;
-            switch (def.getQueryType()) {
-                case NextUp:
-                    rowAdapter = new ItemRowAdapter(def.getNextUpQuery(), true, mCardPresenter, mRowsAdapter);
-                    break;
-                case LatestItems:
-                    rowAdapter = new ItemRowAdapter(def.getLatestItemsQuery(), true, mCardPresenter, mRowsAdapter);
-                    break;
-                case Season:
-                    rowAdapter = new ItemRowAdapter(def.getSeasonQuery(), mCardPresenter, mRowsAdapter);
-                    break;
-                case Upcoming:
-                    rowAdapter = new ItemRowAdapter(def.getUpcomingQuery(), mCardPresenter, mRowsAdapter);
-                    break;
-                case Views:
-                    rowAdapter = new ItemRowAdapter(new ViewQuery(), mCardPresenter, mRowsAdapter);
-                    break;
-                case SimilarSeries:
-                    rowAdapter = new ItemRowAdapter(def.getSimilarQuery(), QueryType.SimilarSeries, mCardPresenter, mRowsAdapter);
-                    break;
-                case SimilarMovies:
-                    rowAdapter = new ItemRowAdapter(def.getSimilarQuery(), QueryType.SimilarMovies, mCardPresenter, mRowsAdapter);
-                    break;
-                case Persons:
-                    rowAdapter = new ItemRowAdapter(def.getPersonsQuery(), def.getChunkSize(), mCardPresenter, mRowsAdapter);
-                    break;
-                case LiveTvChannel:
-                    rowAdapter = new ItemRowAdapter(def.getTvChannelQuery(), 40, mCardPresenter, mRowsAdapter);
-                    break;
-                case LiveTvProgram:
-                    rowAdapter = new ItemRowAdapter(def.getProgramQuery(), mCardPresenter, mRowsAdapter);
-                    break;
-                case LiveTvRecording:
-                    rowAdapter = new ItemRowAdapter(def.getRecordingQuery(), def.getChunkSize(), mCardPresenter, mRowsAdapter);
-                    break;
-                case LiveTvRecordingGroup:
-                    rowAdapter = new ItemRowAdapter(def.getRecordingGroupQuery(), mCardPresenter, mRowsAdapter);
-                    break;
-                default:
-                    rowAdapter = new ItemRowAdapter(def.getQuery(), def.getChunkSize(), def.getPreferParentThumb(), def.isStaticHeight(), mCardPresenter, mRowsAdapter, def.getQueryType());
-                    break;
-            }
-
-            rowAdapter.setReRetrieveTriggers(def.getChangeTriggers());
-
+            Log.e("toto","header:"+def.getHeaderText()+" "+def.getQueryType().name());
+            ItemRowAdapter rowAdapter = setupItemRowAdapterForRow(def);
             ListRow row = new ListRow(header, rowAdapter);
             mRowsAdapter.add(row);
             rowAdapter.setRow(row);
@@ -233,9 +197,55 @@ public class StdBrowseFragment extends BrowseFragment implements IRowLoader {
         }
 
         addAdditionalRows(mRowsAdapter);
-
         setAdapter(mRowsAdapter);
+    }
 
+    private ItemRowAdapter setupItemRowAdapterForRow(BrowseRowDef def){
+        ItemRowAdapter rowAdapter;
+        switch (def.getQueryType()) {
+            case NextUp:
+                rowAdapter = new ItemRowAdapter(def.getNextUpQuery(), true, mCardPresenter, mRowsAdapter);
+                break;
+            case LatestItems:
+                rowAdapter = new ItemRowAdapter(def.getLatestItemsQuery(), true, mCardPresenter, mRowsAdapter);
+                break;
+            case Season:
+                rowAdapter = new ItemRowAdapter(def.getSeasonQuery(), mCardPresenter, mRowsAdapter);
+                break;
+            case Upcoming:
+                rowAdapter = new ItemRowAdapter(def.getUpcomingQuery(), mCardPresenter, mRowsAdapter);
+                break;
+            case Views:
+                rowAdapter = new ItemRowAdapter(mCardPresenter, mRowsAdapter);
+                break;
+            case SimilarSeries:
+                rowAdapter = new ItemRowAdapter(def.getSimilarQuery(), QueryType.SimilarSeries, mCardPresenter, mRowsAdapter);
+                break;
+            case SimilarMovies:
+                rowAdapter = new ItemRowAdapter(def.getSimilarQuery(), QueryType.SimilarMovies, mCardPresenter, mRowsAdapter);
+                break;
+            case Persons:
+                rowAdapter = new ItemRowAdapter(def.getPersonsQuery(), def.getChunkSize(), mCardPresenter, mRowsAdapter);
+                break;
+            case LiveTvChannel:
+                rowAdapter = new ItemRowAdapter(def.getTvChannelQuery(), 40, mCardPresenter, mRowsAdapter);
+                break;
+            case LiveTvProgram:
+                rowAdapter = new ItemRowAdapter(def.getProgramQuery(), mCardPresenter, mRowsAdapter);
+                break;
+            case LiveTvRecording:
+                rowAdapter = new ItemRowAdapter(def.getRecordingQuery(), def.getChunkSize(), mCardPresenter, mRowsAdapter);
+                break;
+            case LiveTvRecordingGroup:
+                rowAdapter = new ItemRowAdapter(def.getRecordingGroupQuery(), mCardPresenter, mRowsAdapter);
+                break;
+            default:
+                rowAdapter = new ItemRowAdapter(def.getQuery(), def.getChunkSize(), def.getPreferParentThumb(), def.isStaticHeight(), mCardPresenter, mRowsAdapter, def.getQueryType());
+                break;
+        }
+
+        rowAdapter.setReRetrieveTriggers(def.getChangeTriggers());
+        return rowAdapter;
     }
 
     protected void addAdditionalRows(ArrayObjectAdapter rowAdapter) {
@@ -304,44 +314,23 @@ public class StdBrowseFragment extends BrowseFragment implements IRowLoader {
 
         // load item panel animation
         fadeInPanel = AnimationUtils.loadAnimation(mActivity, R.anim.abc_fade_in);
-        fadeInPanel.setAnimationListener(new Animation.AnimationListener() {
+        fadeInPanel.setAnimationListener(new AnimationEndCallback() {
             @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
+            public void onAnimationEnd() {
                 mItemPanel.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
             }
         });
 
         fadeOutPanel = AnimationUtils.loadAnimation(mActivity, R.anim.abc_fade_out);
-        fadeOutPanel.setAnimationListener(new Animation.AnimationListener() {
+        fadeOutPanel.setAnimationListener(new AnimationEndCallback() {
             @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
+            public void onAnimationEnd() {
                 mItemPanel.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
             }
         });
 
         // set search icon color
         setSearchAffordanceColor(getResources().getColor(R.color.search_opaque));
-
     }
 
     private Runnable showItemPanel = new Runnable() {
@@ -422,6 +411,7 @@ public class StdBrowseFragment extends BrowseFragment implements IRowLoader {
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
 
             if (!(item instanceof BaseRowItem)) return;
+            Log.e("toto","history:");
             ItemLauncher.launch((BaseRowItem) item, (ItemRowAdapter) ((ListRow)row).getAdapter(), ((BaseRowItem)item).getIndex(), getActivity());
         }
     }

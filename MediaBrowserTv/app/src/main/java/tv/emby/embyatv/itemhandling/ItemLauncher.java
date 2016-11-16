@@ -27,8 +27,8 @@ import tv.emby.embyatv.browsing.GenericGridActivity;
 import tv.emby.embyatv.browsing.MainActivity;
 import tv.emby.embyatv.browsing.UserViewActivity;
 import tv.emby.embyatv.details.FullDetailsActivity;
-import tv.emby.embyatv.details.PhotoPlayerActivity;
 import tv.emby.embyatv.details.ItemListActivity;
+import tv.emby.embyatv.details.PhotoPlayerActivity;
 import tv.emby.embyatv.livetv.LiveTvGuideActivity;
 import tv.emby.embyatv.model.ChapterItemInfo;
 import tv.emby.embyatv.model.ViewType;
@@ -101,9 +101,9 @@ public class ItemLauncher {
                                         break;
                                     default:
                                         // open generic folder browsing
-                                        Intent folderIntent = new Intent(activity, GenericGridActivity.class);
-                                        folderIntent.putExtra("Folder", TvApp.getApplication().getSerializer().SerializeToString(baseItem));
-                                        activity.startActivity(folderIntent);
+//                                        Intent folderIntent = new Intent(activity, GenericGridActivity.class);
+//                                        folderIntent.putExtra("Folder", TvApp.getApplication().getSerializer().SerializeToString(baseItem));
+//                                        activity.startActivity(folderIntent);
                                 }
 
                             }

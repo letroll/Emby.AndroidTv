@@ -6,20 +6,18 @@ import android.media.MediaPlayer;
  * Created by Eric on 6/13/2015.
  */
 public interface IVideoView {
-    public int getDuration();
-    public int getCurrentPosition();
-    public boolean isPlaying();
+    int getDuration();
+    int getCurrentPosition();
+    boolean isPlaying();
 
-    public void start();
-    public void pause();
-    public void stopPlayback();
-    public void seekTo(int pos);
-    public void setVideoPath(String path);
+    void start();
+    void pause();
+    void stopPlayback();
+    void seekTo(int pos);
+    void setVideoPath(String path);
 
-    public void onActivityCreated(PlaybackOverlayActivity activity);
-    public void setOnErrorListener(MediaPlayer.OnErrorListener listener);
-    public void setOnCompletionListener(MediaPlayer.OnCompletionListener listener);
-    public void setOnPreparedListener(MediaPlayer.OnPreparedListener listener);
-    public void setOnSeekCompleteListener(MediaPlayer mp, MediaPlayer.OnSeekCompleteListener listener);
-
+    void setOnErrorListener(MediaPlayer.OnErrorListener listener);
+    void setOnCompletionListener(MediaPlayer.OnCompletionListener listener);
+    void setOnPreparedListener(MediaPlayer.OnPreparedListener listener);
+    void setOnSeekCompleteListener(MediaPlayer mp, MediaPlayer.OnSeekCompleteListener listener);
 }
