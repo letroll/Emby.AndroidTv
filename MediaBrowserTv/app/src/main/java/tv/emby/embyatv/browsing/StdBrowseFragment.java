@@ -188,7 +188,6 @@ public class StdBrowseFragment extends BrowseFragment implements IRowLoader {
 
         for (BrowseRowDef def : rows) {
             HeaderItem header = new HeaderItem(def.getHeaderText());
-            Log.e("toto","header:"+def.getHeaderText()+" "+def.getQueryType().name());
             ItemRowAdapter rowAdapter = setupItemRowAdapterForRow(def);
             ListRow row = new ListRow(header, rowAdapter);
             mRowsAdapter.add(row);
@@ -411,7 +410,6 @@ public class StdBrowseFragment extends BrowseFragment implements IRowLoader {
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
 
             if (!(item instanceof BaseRowItem)) return;
-            Log.e("toto","history:");
             ItemLauncher.launch((BaseRowItem) item, (ItemRowAdapter) ((ListRow)row).getAdapter(), ((BaseRowItem)item).getIndex(), getActivity());
         }
     }
@@ -445,7 +443,7 @@ public class StdBrowseFragment extends BrowseFragment implements IRowLoader {
             mCurrentRow = (ListRow) row;
             BaseRowItem rowItem = (BaseRowItem) item;
 
-            //mApplication.getLogger().Debug("Selected Item "+rowItem.getIndex() + " type: "+ (rowItem.getItemType().equals(BaseRowItem.ItemType.BaseItem) ? rowItem.getBaseItem().getType() : "other"));
+            mApplication.getLogger().Debug("Selected Item "+rowItem.getIndex() + " type: "+ (rowItem.getItemType().equals(BaseRowItem.ItemType.BaseItem) ? rowItem.getBaseItem().getType() : "other"));
             ItemRowAdapter adapter = (ItemRowAdapter) ((ListRow)row).getAdapter();
             adapter.loadMoreItemsIfNeeded(rowItem.getIndex());
 

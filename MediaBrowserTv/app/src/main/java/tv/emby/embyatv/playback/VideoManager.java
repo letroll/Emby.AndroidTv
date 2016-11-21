@@ -48,8 +48,6 @@ public class VideoManager implements IVLCVout.Callback {
     private EMVideoView mVideoView;
     private LibVLC mLibVLC;
     private org.videolan.libvlc.MediaPlayer mVlcPlayer;
-    private String mCurrentVideoPath;
-    private String mCurrentVideoMRL;
     private Media mCurrentMedia;
     private VlcEventHandler mVlcHandler = new VlcEventHandler();
     private Handler mHandler = new Handler();
@@ -59,8 +57,6 @@ public class VideoManager implements IVLCVout.Callback {
     private int mVideoVisibleWidth;
     private int mSarNum;
     private int mSarDen;
-    private int mCurrentBuffer;
-    private boolean mIsInterlaced;
 
     private long mForcedTime = -1;
     private long mLastTime = -1;
@@ -247,7 +243,6 @@ public class VideoManager implements IVLCVout.Callback {
     }
 
     public void setVideoPath(String path) {
-        mCurrentVideoPath = path;
         TvApp.getApplication().getLogger().Info("Video path set to: "+path);
 
         if (nativeMode) {
@@ -419,7 +414,7 @@ public class VideoManager implements IVLCVout.Callback {
     }
 
     private void createPlayer(int buffer, boolean isInterlaced) {
-        if (mVlcPlayer != null && mIsInterlaced == isInterlaced && mCurrentBuffer == buffer) return; // don't need to re-create
+        if (mVlcPlayer != null) return; // don't need to re-create
 
         try {
 
@@ -610,7 +605,7 @@ public class VideoManager implements IVLCVout.Callback {
         mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
-                TvApp.getApplication().getLogger().Error("***** Got error from player");
+                TvApp.getApplication().getLogger().Error("***** Got error from player:"+what+" "+extra);
                 listener.onEvent();
                 stopProgressLoop();
                 return true;

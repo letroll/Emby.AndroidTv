@@ -66,6 +66,8 @@ public class HomeFragment extends StdBrowseFragment {
 
         saveLastLogin();
 
+        setHeadersState(HEADERS_DISABLED);
+
         //Init recommendations
         RecommendationManager.init();
 

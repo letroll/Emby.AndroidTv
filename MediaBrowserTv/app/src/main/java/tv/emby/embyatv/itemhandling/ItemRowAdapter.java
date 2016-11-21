@@ -743,7 +743,7 @@ public class ItemRowAdapter extends ArrayObjectAdapter {
                         //re-map the display prefs id to our actual id
                         item.setDisplayPreferencesId(item.getId());
 
-                        if (!ignoreTypeList.contains(item.getCollectionType()) && !ignoreTypeList.contains(item.getType()))
+                        if (filterIfWeNeedCollection(item) && !ignoreTypeList.contains(item.getCollectionType()) && !ignoreTypeList.contains(item.getType()))
                             adapter.add(new BaseRowItem(i++, item, preferParentThumb, staticHeight));
                     }
                     totalItems = response.getTotalRecordCount();
@@ -770,6 +770,11 @@ public class ItemRowAdapter extends ArrayObjectAdapter {
             }
         });
 
+    }
+
+    private boolean filterIfWeNeedCollection(final BaseItemDto item) {
+        TvApp.getApplication().
+        return !item.getName().equals("Collections");
     }
 
     private void Retrieve(SearchQuery query) {
