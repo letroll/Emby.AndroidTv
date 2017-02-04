@@ -1,0 +1,158 @@
+allprojects {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+}
+
+ext {
+
+    //Java
+    jackCompilerEnabled = false
+
+    //Android
+    //androidApplicationId = "fr.letroll.charlotte"
+    androidBuildToolsVersion = "25.0.2"
+    androidMinSdkVersion = 21
+    androidTargetSdkVersion = 24
+    androidCompileSdkVersion = 24
+    androidVersionCode = 1
+    androidVersionName = "1.0"
+    androidDataBinding = true
+
+    //Support Library
+    androidSupportV13Version = "25.1.0"
+    androidSupportV4Version = "25.1.0"
+    androidSupportV7Version = "25.1.0"
+    androidSupportRecyclerviewVersion = "25.1.0"
+    androidSupportAppCompatVersion = "25.1.0"
+    androidSupportDesignVersion = "25.1.0"
+    androidSupportMultiDexVersion = '1.0.1'
+    androidAnnotationsVersion = '20.0.0'
+    androidWearableVersion = '1.4.0' //2.0.0-alpha2
+    playServicewearable = '9.0.2'
+    androidDatabindingCompilerVersion = '2.2.0'
+
+    //Libraries
+
+    //Dagger 2
+    daggerVersion = '2.5'
+    javaxAnnotationVersion = '10.0-b28'
+
+    butterKnifeVersion = '6.0.0'
+    recyclerViewVersion = '21.0.3'
+    ormliteVersion = '4.48'
+    ormliteAndroidVersion = '4.48'
+    zXingVersion = '3.2.0'
+    materialSupportVersion = '1.2.1'
+    slidingUpPanelVersion = '3.2.1'
+    roundedImageViewVersion = '2.0.0'
+    acraVersion = '4.7.0'
+
+    // retrofit 2
+    retrofitVersion = '2.1.0'
+    retrofitConverterScalarsVersion = '2.1.0'
+    retrofitAdapterRxjavaVersion = '2.1.0'
+    okHttpVersion = '2.0.0'
+    okHttpUrlConnectionVersion = '2.0.0'
+
+    //rx
+    rxandroidVersion = '1.2.1' //
+    rxwearVersion = '1.2.0'
+
+    //view
+//    speechRecognitionViewVersion = '1.0.2'
+
+    //Testing
+    robolectricVersion = '2.4'
+    jUnitVersion = '4.12'
+    mockitoVersion = '1.9.5'
+    hamcrestVersion = '1.3'
+    dexmakerVersion = '1.0'
+    espressoVersion = '2.0'
+    testingSupportLibVersion = '0.1'
+
+    presentationWearDependencies = [
+            androidSupportV13    : "com.android.support:support-v13:${androidSupportV13Version}",
+            rxwear               : "com.patloew.rxwear:rxwear:${rxwearVersion}",
+            wearable             : "com.google.android.support:wearable:${androidWearableVersion}",
+            playServicewearable  : "com.google.android.gms:play-services-wearable:${playServicewearable}",
+            daggerCompiler       : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            dagger               : "com.google.dagger:dagger:${daggerVersion}",
+            javaxAnnotation      : "org.glassfish:javax.annotation:${javaxAnnotationVersion}",
+//            speechRecognitionView: "com.github.zagum:SpeechRecognitionView:${speechRecognitionViewVersion}",
+    ]
+
+    presentationDependencies = [
+            daggerCompiler         : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            dagger                 : "com.google.dagger:dagger:${daggerVersion}",
+            javaxAnnotation        : "org.glassfish:javax.annotation:${javaxAnnotationVersion}",
+            butterKnife            : "com.jakewharton:butterknife:${butterKnifeVersion}",
+            recyclerView           : "com.android.support:recyclerview-v7:${recyclerViewVersion}",
+            androidSupportV13      : "com.android.support:support-v13:${androidSupportV13Version}",
+            androidSupportV4       : "com.android.support:support-v4:${androidSupportV4Version}",
+            androidSupportV7       : "com.android.support:cardview-v7:${androidSupportV7Version}",
+            androidSupportRecycler : "com.android.support:recyclerview-v7:${androidSupportRecyclerviewVersion}",
+            androidSupportAppCompat: "com.android.support:appcompat-v7:${androidSupportAppCompatVersion}",
+            androidSupportDesign   : "com.android.support:design:${androidSupportDesignVersion}",
+            zXingCore              : "com.google.zxing:core:${zXingVersion}",
+            androidSupportMultiDex : "com.android.support:multidex:${androidSupportMultiDexVersion}",
+            slidingUpPanel         : "com.sothree.slidinguppanel:library:${slidingUpPanelVersion}",
+            roundedImageView       : "de.hdodenhof:circleimageview:${roundedImageViewVersion}",
+            rxwear                 : "com.patloew.rxwear:rxwear:${rxwearVersion}",
+//            speechRecognitionView  : "com.github.zagum:SpeechRecognitionView:${speechRecognitionViewVersion}",
+            androidDatabindingCompiler : "com.android.databinding:compiler:${androidDatabindingCompilerVersion}",
+    ]
+
+    domainDependencies = [
+            daggerCompiler : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            dagger         : "com.google.dagger:dagger:${daggerVersion}",
+            javaxAnnotation: "org.glassfish:javax.annotation:${javaxAnnotationVersion}",
+    ]
+
+    dataDependencies = [
+            //dagger 2
+            daggerCompiler          : "com.google.dagger:dagger-compiler:${daggerVersion}",
+            dagger                  : "com.google.dagger:dagger:${daggerVersion}",
+            //retrofit 2
+            okHttp                  : "com.squareup.okhttp:okhttp:${okHttpVersion}",
+            okUrlConnection         : "com.squareup.okhttp:okhttp-urlconnection:${okHttpUrlConnectionVersion}",
+            retrofit                : "com.squareup.retrofit2:retrofit:${retrofitVersion}",
+            retrofitConverterScalars: "com.squareup.retrofit2:converter-scalars:${retrofitConverterScalarsVersion}",
+            retrofitAdapterRxjava   : "com.squareup.retrofit2:adapter-rxjava${retrofitAdapterRxjavaVersion}",
+            //rx
+            rxandroid               : "io.reactivex:rxandroid:${rxandroidVersion}",
+
+            javaxAnnotation         : "org.glassfish:javax.annotation:${javaxAnnotationVersion}",
+            androidAnnotations      : "com.android.support:support-annotations:${androidAnnotationsVersion}",
+            ormlite                 : "com.j256.ormlite:ormlite-core:${ormliteVersion}",
+            ormliteAndroid          : "com.j256.ormlite:ormlite-android:${ormliteAndroidVersion}",
+            androidSupportV4        : "com.android.support:support-v4:${androidSupportV4Version}",
+            acra                    : "ch.acra:acra:${acraVersion}",
+    ]
+
+    /*
+    presentationTestDependencies = [
+            junit:              "junit:junit:${jUnitVersion}",
+            mockito:            "org.mockito:mockito-core:${mockitoVersion}",
+            hamcrest:           "org.hamcrest:hamcrest-library:${hamcrestVersion}",
+            dexmaker:           "com.google.dexmaker:dexmaker:${dexmakerVersion}",
+            dexmakerMockito:    "com.google.dexmaker:dexmaker-mockito:${dexmakerVersion}",
+            espresso:           "com.android.support.test.espresso:espresso-core:${espressoVersion}",
+            testingSupportLib:  "com.android.support.test:testing-support-lib:${testingSupportLibVersion}",
+            robolectric:        "org.robolectric:robolectric:${robolectricVersion}",
+    ]
+
+    domainTestDependencies = [
+            junit:              "junit:junit:${jUnitVersion}",
+            mockito:            "org.mockito:mockito-core:${mockitoVersion}",
+            hamcrest:           "org.hamcrest:hamcrest-library:${hamcrestVersion}",
+    ]
+
+    dataTestDependencies = [
+            junit:              "junit:junit:${jUnitVersion}",
+            mockito:            "org.mockito:mockito-core:${mockitoVersion}",
+            hamcrest:           "org.hamcrest:hamcrest-library:${hamcrestVersion}",
+    ]
+    */
+}
